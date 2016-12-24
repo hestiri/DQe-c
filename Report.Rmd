@@ -1,0 +1,402 @@
+---
+title: "DQe-c Report"
+output: 
+  html_document: 
+    highlight: tango
+    toc: yes
+---
+
+
+```{r, echo=FALSE, include=FALSE}
+require(data.table);require(dplyr);require(ggplot2);require(gridExtra);require(rmarkdown);require(knitr):require(plotly);require(DT);require(treemap); require(visNetwork)
+source("keys.R");rm(pss)
+ 
+```
+
+##Load and Test Details
+
+This DQec report is generated from testing completeness in `r CDM` data from `r org` on `r Sys.Date()`. 
+
+### Table 1. List and Status of Common Data Model (CDM) -- here, `r CDM` -- Tables in this load
+The table bolow provides a list of CDM tables provided (and not provided) in the data load.
+
+The source data this table and the following graphics in this section are being generated from is `r paste("tablelist_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep="")`
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+dato <- read.csv(paste("reports/load_details_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep=""))
+dato$TotalSizeKB <- ifelse(is.null(dato$TotalSizeKB) | is.na(dato$TotalSizeKB), 0, dato$TotalSizeKB)
+dato$TotalSizeGB <- round(as.numeric(dato$TotalSizeKB)/1000000,4)
+dato$Rows <- ifelse(is.null(dato$Rows) | is.na(dato$Rows), 0, dato$Rows)
+dato$status <- ifelse((dato$loaded == "Yes" & dato$available == "No"), "Table loaded but empty", "Table available")
+dato$status <- ifelse((dato$loaded == "No"), "Table not loaded!", dato$status)
+datatable(select(dato, CDM_Tables, status, TotalSizeGB, Rows), options = list(pageLength = 5), filter = 'bottom')
+
+```
+
+
+### Figure 1. Available Tables, Compared to all CDM (`r CDM`) Tables
+This figure shows which of the CDM tables are loaded and/or available. 
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+treemap(dato,
+        index=c("CDM_Tables"),
+        vSize="index",
+        vColor="status",
+        type="categorical",
+        title = "",
+        title.legend = "Table Availability",
+        border.col = "white",
+        position.legend = "bottom"
+        )
+
+```
+
+### Figure 2. File Size and Row Numbers by Table in the (`r CDM`) Load
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+treemap(dato,
+        index=c("CDM_Tables"),
+        vSize="Rows",
+        vColor="TotalSizeGB",
+        type="value",
+        title = "",
+        title.legend = "Size represents number of rows and color represent file size (in GB) for each table.",
+        border.col = "white",
+        position.legend = "bottom"
+)
+```
+
+
+### Figure 3. Loaded tables against CDM (`r CDM`) Relational Model.
+The figure below shows a network visualization of the CDM data model, as well as highlighting the tables that are available in this load (legend is the same as in Figure 1).
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+dat.net <- dato
+if (CDM == "PCORNET3") {
+  nodes <- data.frame(id = dat.net$X, 
+                    label = dat.net$CDM_Tables, 
+                    group = c(dat.net$status),
+                    shadow = c(FALSE))
+edges <- data.frame(from = c(4,4,4,4,4,4,4,4,4,4,4,4,4,#demographics's
+                             7,7,7,7,7,7,7,#encounter's
+                             12 #prescribing's
+                             ), 
+                    to = c(2,3,1,5,6,7,8,15,10,11,12,13,14,#to demographic
+                           15,1,13,5,14,10,12,# to encounter through encounterid, enc_type, and providerid
+                           6 # to prescribing through prescribingid
+                           ))
+
+visNetwork(nodes, edges) %>%
+  visGroups(groupname = "Table loaded but empty", color = "#EE9572", shape = "circle") %>%
+  visGroups(groupname = "Table available", color = "#00C5CD", shape = "circle") %>%
+  visGroups(groupname = "Table not loaded!", color = "gray", shape = "circle") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = T) %>% 
+  visEdges(arrows = 'from', scaling = list(min = .5, max = 1)) %>%
+  visInteraction(navigationButtons = T, dragView = FALSE, zoomView = FALSE)
+
+} else
+  if (CDM == "OMOPV5") {
+#     nodes <- data.frame(id = dat.net$X, 
+#                     label = dat.net$CDM_Tables, 
+#                     group = c(dat.net$status),
+#                     shadow = F)
+# edges <- data.frame(from = c(14,14,14,14,14,14,14,14,14,14,14,#person
+#                              17,17,17,17,17,#provider
+#                              1,1, #caresite
+#                              8,8, #drug exposure
+#                              18,18,18,18, #visit occurence
+#                              4, #condition occurence
+#                              16 #procedure occurence
+#                              ), 
+#                     to = c(9,11,13,18,9,8,4,16,10,2,5,#person's
+#                            1,8,4,16,10,#provider's
+#                            9,12,#care site's
+#                            7,6,#drug exposure's
+#                            8, 4, 16, 10, # visit occurence's
+#                            3, #condition occurence's
+#                            15 #procedure occurence's
+#                            ))
+# 
+# visGroups(groupname = "Table loaded but empty", color = "#EE9572", shape = "circle") %>%
+#   visGroups(groupname = "Table available", color = "#00C5CD", shape = "circle") %>%
+#   visGroups(groupname = "Table not loaded!", color = "gray", shape = "circle") %>%
+#   visOptions(highlightNearest = TRUE, nodesIdSelection = T) %>% 
+#   visEdges(arrows = 'from', scaling = list(min = .5, max = 1)) %>%
+#   visInteraction(navigationButtons = T, dragView = FALSE, zoomView = FALSE)
+  }
+
+
+```
+
+## Completeness Results
+### Table 2. The Master Completeness Results Table
+The table below provides results of completeness test at the value/cell level.
+
+* `TabNam` = `r CDM`  table name
+* `ColNam` = Column name
+* `DQLVL` = Level of importance for completeness test. (`X`: Extremely Important, `H`: Highly Important, `L`:Low Importance)
+* `FRQ` = Frequency of rows
+* `UNIQFRQ` = Frequency of unique values in each column
+* `MS1_FRQ` = Frequency of cells with NULL/NA values or empty strings in each column
+* `MS2_FRQ` = Frequency of cells with characters in each column that don't represent meaningful data -- including, '+', '-', '_','#', '$', '*', '\', '?', '.', '&', '^', '%', '!',  '@', and 'NI'.
+* `MSs_PERC` = Percentage of overall missing data in each column 
+
+Data for this table is generated from `r paste("DQ_Master_Table_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep="")` saved under report directory.
+```{r, echo=FALSE}
+DQTBL <- read.csv(paste("reports/mstabs/DQ_Master_Table_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep=""))
+datatable(DQTBL[,c("TabNam","ColNam","DQLVL","test_date","FRQ","UNIQFRQ","MS1_FRQ","MS2_FRQ","MSs_PERC" )], options = list(pageLength = 10), filter = 'bottom')
+```
+
+
+### Figure 4. Changes in Primary Keys Across Loads
+Figure below profiles changes in primary keys across loads as a measure of change in patient/record number over time.
+
+Data for the figure is stored in `r paste("FRQ_comp_",usrnm,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep="")`
+```{r, echo=FALSE, warning=FALSE,  message=FALSE, fig.align='center', fig.height= 10,  fig.width= 10}
+comp <- read.csv(paste("reports/FRQ_comp_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep=""))
+  
+ggplot(comp, aes(x=reorder(test_date,test_date), y=UNIQFRQ, group = ColNam) ) + 
+  geom_line(aes(), alpha = 0.4,  size = 1, show.legend = FALSE) + 
+  stat_smooth(colour = "red",level=0.99) +
+  geom_point( alpha = 0.5, shape = 1, size = 6, colour = "#FF3333", stroke = 2, show.legend = FALSE) + 
+  geom_point( aes(col = test_date), shape = 20, size = 8,   show.legend = T) + 
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", hjust=0)) +
+  xlab("Load") + ylab("Unique Counts") + 
+  facet_wrap(~TabNam, ncol = 3, switch = "x", scales = "free") +
+  theme(axis.text.x=element_text(colour="white", size = 0.1))
+```
+
+### Figure set 1. Proportion of Missing Data by Type in Loaded Tables
+Figures below show proportion of missing cells/values in each column of each table loaded. Figures are generated based on Table 2. 
+
+* `MS1_FRQ` = Frequency of cells with NULL/NA values and empty strings in each column -- presence of absence
+* `MS2_FRQ` = Frequency of cells with characters in each column that don't represent meaningful data -- presence of nonsense 
+
+```{r, echo=FALSE, ggplot, warning=FALSE,  message=FALSE, fig.align='center', fig.height= 5, fig.width= 12}
+
+DQTBL$MS1_PERC <- ifelse(DQTBL$FRQ == 0, 0, round((DQTBL$MS1_FRQ)/DQTBL$FRQ,2))
+DQTBL$MS2_PERC <- ifelse(DQTBL$FRQ == 0, 0, round((DQTBL$MS2_FRQ)/DQTBL$FRQ,2))
+DF <- subset(melt(DQTBL, id.var=c("TabNam","ColNam")), variable %in% c("MS1_PERC","MS2_PERC"))
+DF$value <- as.numeric(DF$value)
+colnames(DF)[3] <- "DQ_Issue"
+colnames(DF)[4] <- "Ratio"
+
+#####plotting
+plot_list<- list()
+table_list <- unique(DQTBL$TabNam)
+
+# create for loop to produce ggplot2 graphs 
+for (i in seq_along(table_list)) { 
+  
+  # create plot for each OMOP table in DQTBL 
+  plot_list[[i]] <- 
+    plot_list[[i]] <- 
+    ggplot(subset(DF, TabNam==table_list[i]),
+           aes(x=ColNam, y=Ratio, fill=DQ_Issue)) + 
+    geom_bar(stat="identity", width = 1) +
+    #     scale_fill_manual(values=c("red","green","orange","dark red")) +
+    facet_wrap( ~ ColNam, scale="free_x", nrow = 1) +
+    #     ggtitle("Frequency of Missing Data") +
+    xlab("Column") +
+    ylab("Frequency") +
+    theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", hjust=0),
+          axis.text.x = element_text(vjust = 1),
+          strip.text.x = element_text(angle = 90, face="bold")) +
+    theme(axis.text.x=element_blank())+    # theme(legend.position="none") + 
+    ggtitle(paste('Ratio of Missing Data in "', table_list[i], '" table', sep=''))
+  
+}
+
+plot_list
+
+```
+
+##Data Model Tests
+
+### Figure set 2. Common Key Variables
+Figures below visualize number of unique key variables that are common in multiple `r CDM` tables. 
+
+* The Reference column on the right comes from the table in which the variable is a primary key, and therefore is a reference for all other tables. 
+
+* Count_Out shows number of unique key variables that are not present in the reference table -- e.g., person id from observation table that does not exist in person table.
+
+* Count_In represent number of unique key variables that are present in the reference table -- e.g., person id from observation table that exist in person table as well.
+
+```{r, echo=FALSE,  fig.align='center', fig.height= 3, fig.width= 10}
+DQTBL_KEYS <- read.csv(paste("reports/DM_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep=""))
+
+if (CDM == "PCORNET3") {
+  patid<- filter(DQTBL_KEYS, ColNam == "patid")
+plot2 <- ggplot(data=patid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+  geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+  scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+  ggtitle(paste("Count of Unique ",unique(patid$ColNam)," in Tables with ",unique(patid$ColNam),
+                sep="")) +
+  xlab(" Table Name") +
+  ylab("Frequency of Unique Values")
+(gg <- ggplotly(plot2))
+} else
+  if (CDM == "OMOPV5") {
+#     person_id<- filter(DQTBL_KEYS, ColNam == "person_id")
+# plot2 <- ggplot(data=person_id, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+#   geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+#   scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+#   ggtitle(paste("Count of Unique ",unique(person_id$ColNam)," in Tables with ",unique(person_id$ColNam),
+#                 sep="")) +
+#   xlab(" Table Name") +
+#   ylab("Frequency of Unique Values")
+# (gg <- ggplotly(plot2))
+  }
+
+
+
+```
+
+```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
+
+
+if (CDM == "PCORNET3") {
+  encounterid <- filter(DQTBL_KEYS, ColNam == "encounterid")
+
+plot3 <- ggplot(data=encounterid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+  geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+  scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+  ggtitle(paste("Count of Unique ",unique(encounterid$ColNam)," in Tables with ",unique(encounterid$ColNam),
+                sep="")) +
+  xlab(" Table Name") +
+  ylab("Frequency of Unique Values")
+(gg <- ggplotly(plot3))
+} else
+  if (CDM == "OMOPV5") {
+#     care_site_id<- filter(DQTBL_KEYS, ColNam == "care_site_id")
+# 
+# plot3 <- ggplot(data=care_site_id, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+#   geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+#   scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+#   ggtitle(paste("Count of Unique ",unique(care_site_id$ColNam)," in Tables with ",unique(care_site_id$ColNam),
+#                 sep="")) +
+#   xlab(" Table Name") +
+#   ylab("Frequency of Unique Values")
+# (gg <- ggplotly(plot3))
+  }
+
+
+```
+
+```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
+
+if (CDM == "PCORNET3") {
+  providerid <- filter(DQTBL_KEYS, ColNam == "providerid")
+
+plot4 <- ggplot(data=providerid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+  geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+  scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+  ggtitle(paste("Count of Unique ",unique(providerid$ColNam)," in Tables with ",unique(providerid$ColNam),
+                sep="")) +
+  xlab(" Table Name") +
+  ylab("Frequency of Unique Values")
+(gg <- ggplotly(plot4))
+} else
+  if (CDM == "OMOPV5") {
+#     visit_occurrence_id<- filter(DQTBL_KEYS, ColNam == "visit_occurrence_id")
+# 
+# plot4 <- ggplot(data=visit_occurrence_id, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+#   geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+#   scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+#   ggtitle(paste("Count of Unique ",unique(visit_occurrence_id$ColNam)," in Tables with ",unique(visit_occurrence_id$ColNam),
+#                 sep="")) +
+#   xlab(" Table Name") +
+#   ylab("Frequency of Unique Values")
+# (gg <- ggplotly(plot4))
+  }
+
+
+
+```
+
+```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
+
+if (CDM == "PCORNET3") {
+  enc_type <- filter(DQTBL_KEYS, ColNam == "enc_type")
+
+plot5 <- ggplot(data=enc_type, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+  geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+  scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+  ggtitle(paste("Count of Unique ",unique(enc_type$ColNam)," in Tables with ",unique(enc_type$ColNam),
+                sep="")) +
+  xlab(" Table Name") +
+  ylab("Frequency of Unique Values")
+(gg <- ggplotly(plot5))
+} else
+  if (CDM == "OMOPV5") {
+#     location_id<- filter(DQTBL_KEYS, ColNam == "location_id")
+# 
+# plot5 <- ggplot(data=location_id, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+#   geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+#   scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+#   ggtitle(paste("Count of Unique ",unique(location_id$ColNam)," in Tables with ",unique(location_id$ColNam),
+#                 sep="")) +
+#   xlab(" Table Name") +
+#   ylab("Frequency of Unique Values")
+# (gg <- ggplotly(plot5))
+  }
+
+
+
+
+```
+
+```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
+if (CDM == "PCORNET3") {
+  prescribingid <- filter(DQTBL_KEYS, ColNam == "prescribingid")
+
+plot6 <- ggplot(data=prescribingid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+  geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+  scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+  ggtitle(paste("Count of Unique ",unique(prescribingid$ColNam)," in Tables with ",unique(prescribingid$ColNam),
+                sep="")) +
+  xlab(" Table Name") +
+  ylab("Frequency of Unique Values")
+(gg <- ggplotly(plot6))
+} else
+  if (CDM == "OMOPV5") {
+#     organization_id<- filter(DQTBL_KEYS, ColNam == "organization_id")
+# 
+# plot6 <- ggplot(data=organization_id, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+#   geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+#   scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+#   ggtitle(paste("Count of Unique ",unique(organization_id$ColNam)," in Tables with ",unique(organization_id$ColNam),
+#                 sep="")) +
+#   xlab(" Table Name") +
+#   ylab("Frequency of Unique Values")
+# (gg <- ggplotly(plot6))
+  }
+
+
+
+```
+
+
+
+##Test of Completeness in Key Clinical Indicators
+
+### Figure 5. Common Key Variables
+Figure 5 shows the parcentage of patients missing specific key clinical indicators. 
+
+```{r, echo=FALSE, fig.align='center', fig.height= 5, fig.width= 10}
+withouts <- read.csv(paste("reports/withouts_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep=""))
+  
+ggplot(withouts, aes(x=missing.percentage,y=reorder(group,-missing.percentage), label = perc)) + 
+    geom_point(aes(fill = missing.percentage),shape = 21, colour = "black",  size = 8, stroke = 3, alpha = 0.9) +
+    geom_text(vjust = -0.5, hjust = -.38, nudge_y = 0, size = 4)+
+    scale_fill_gradient(limits=c(0, 100),low="#FFFAF0", high="#EE2C2C", guide=F,na.value="white")+
+    labs(x = "", y = "") +
+    scale_x_continuous(limits = c(0, 100)) + 
+    theme_minimal() +
+    theme(panel.grid.major.y = element_line(color = "gray",size = 2.5),
+          panel.grid.major.x = element_line(colour = "black", linetype = "dotted"),
+          axis.text.y=element_text(size=20, face="bold")) 
+```
+
+
+##info
+This is report is from DQe-c version 3.1
+
+For questions and/or inquiries email: `hestiri@mgh.harvard.edu`
+
