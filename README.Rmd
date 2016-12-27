@@ -1,0 +1,6 @@
+---
+title: "DQe-c"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook that explains the architecture and outputs of DQe-c.
