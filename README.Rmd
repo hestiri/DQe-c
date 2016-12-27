@@ -5,4 +5,4 @@ output: html_notebook
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook that explains the architecture and outputs of DQe-c.
 
-![dqec_workflow](https://github.com/hestiri/DQe-c/blob/master/reports/mstabs/graphics/workflow3.1.jpg)
+![dqec_workflow](https://github.com/hestiri/DQe-c/blob/master/illustration/workflow3.1.jpg)
