@@ -65,7 +65,8 @@ This figure shows which of the CDM tables was received (and not received).
 
 #### Figure 4. Loaded tables against CDM Relational Model.
 The figure below shows a network visualization of the CDM data model, as well as highlighting the tables that are available in this load (legend is the same as in Figure 2).
-![dqec_workflow](example/Report_files/figure-docx/DQe-c_NetViz1.gif)
+
+Figure to follow!
 
 
 ### 2- Completeness Results
