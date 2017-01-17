@@ -8,15 +8,6 @@ output:
     toc: yes
 ---
 
-
-```{r, echo=FALSE, include=FALSE}
-require(data.table);require(dplyr);require(ggplot2);require(gridExtra);require(rmarkdown);require(knitr);
-require(plotly);require(DT);require(treemap); require(visNetwork)
-CDM = "PCORnet_v3"
-org = "DQe-cDemoPCORnet"
- 
-```
-
 ##DQe-c Architecture
 
 DQe-c is a modular tool developed in R statistical language for assessing completeness in EHR data repositories. The tool also performs a data model conformance test that pertain to data completeness. Each run of DQe-c produces a web-based report (.html document) that include visualizations of the data completeness test at a given time (or data load) and changes in key frequencies over time. Data preparation, analyses, and visualizations are performed under seven modules, where each module consists of one or more R scripts (Figure 1). Modules one to six perform data preparation and analyses and store their outputs as comma-separated flat files in the reports directory. The modular design increases flexibility of the tool for future improvements and facilitates interoperability.
