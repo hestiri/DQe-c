@@ -11,7 +11,7 @@ SQL = "SQLServer" ##
 ## if you have your tables in a particular SQL schema, identify the schema here:
 schema = "SET SCHEMA NAME, IF THERE IS ONE" ## default is that there is no schema
 
-## is there a prefix for table names inß your database?
+## is there a prefix for table names in your database?
 prefix = "SET PREFIX, IF THERE IS ONE" ## default at none
 
 
