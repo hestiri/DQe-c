@@ -1,8 +1,283 @@
 ---
-title: "DQe-c"
-output: html_notebook
+title: "DQe-c Report (Example)"
+output:
+  html_document:
+    highlight: tango
+    toc: yes
+  word_document:
+    toc: yes
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook that explains the architecture and outputs of DQe-c.
 
-![dqec_workflow](https://github.com/hestiri/DQe-c/blob/master/illustration/workflow3.1.jpg)
+```{r, echo=FALSE, include=FALSE}
+require(data.table);require(dplyr);require(ggplot2);require(gridExtra);require(rmarkdown);require(knitr);
+require(plotly);require(DT);require(treemap); require(visNetwork)
+CDM = "PCORnet_v3"
+org = "DQe-cDemoPCORnet"
+ 
+```
+
+##DQe-c Architecture
+
+DQe-c is a modular tool developed in R statistical language for assessing completeness in EHR data repositories. The tool also performs a data model conformance test that pertain to data completeness. Each run of DQe-c produces a web-based report (.html document) that include visualizations of the data completeness test at a given time (or data load) and changes in key frequencies over time. Data preparation, analyses, and visualizations are performed under seven modules, where each module consists of one or more R scripts (Figure 1). Modules one to six perform data preparation and analyses and store their outputs as comma-separated flat files in the reports directory. The modular design increases flexibility of the tool for future improvements and facilitates interoperability.
+
+### Figure 1. DQe-c Workflow.
+![dqec_workflow](illustration/workflow3.1.jpg)
+
+###1- Set up and execution module
+The set up and execution module consists of three scripts. All necessary packages are loaded in lib.R, called by RUN.R script. DQe-c’s execution is governed by the RUN.R script, which initiates three modules one after each other (order of initiations are identified in Figure 1). Scripts within each module initiate their dependent scripts, respectively. The latest version of DQe-c (3.1) works on two common data models (CDM), PCORnet version 3 and OMOP version 5. The tool also operates on two Relational Database Management System (RDBMS), MS SQL Server and PostgreSQL, calling SQL queries from within R commands via JDBC/ODBC connection. This capability increases scalability of the tool against large EHR repositories. 
+
+To run DQe-c, the user needs to: (1) specify execution parameters in the RUN.R script, including CDM, SQL, organization name, and database specifications, and (2) set up SQL connection credentials in the keys.R script.
+
+###2- Connectivity module
+The third (and final) step to run DQe-c is to specify SQL connection information (i.e., data base driver, data base name, host address, and connection port) in from connectivity module. This module establishes the JDBC/ODBC connection with the respective RDBMS.
+
+###3- Clinical indicators module
+The clinical indicators module performs tests to count frequencies of patients without information on key clinical indicators. The development and addition of this module was inspired in a  collaboration with DARTNet Institute,25 while implementing an earlier version of DQe-c into their data repository. Selection of clinical indicators in this module is flexible and can be customized based on local needs. This module initiates the data model module as a dependency.
+
+###4- Data model module
+The data model module performs data model-related completeness test. DQe-c version 3.1 checks for the existence of orphan foreign keys in the database, based on the relational constrains. This test looks at completeness from a conformance point of view. More data model-related checks will be added to the future versions of DQe-c through this module. The module initiates its dependent data preparation module.
+
+###5- Data preparation module
+Data preparation module operate the first data operations after the connection to the SQL is established. After the execution parameters are set in the RUN.R, script prep.R reads the respective data model template (OMOP v5 vs. PCORnet V3) and prepares the system to call respective SQL queries (MS SQL Server vs. PostgreSQL). Two comma-separated flat file provide the CDM templates for DQe-c to operate. The first step to expanding the tools functionality to other CDMs is to create a new CDM template and modify the data preparation module. This script creates a reference table for processing in freq.R, which counts and stores frequencies of rows and unique values in each rows. Results of these counts are added to the reference table and will be used by the missingness module for further processing. 
+
+###6- Missingness module
+The missingness module calculates percentage of missing values for each column of each tables available in the database. The results complete the reference table created in the data preparation model, and used by the visualization and presentation module to generate the DQe-c report.
+
+###7- Visualization and presentation module
+The visualization and presentation module includes an R Markdown document that generates the HTML report from completeness tests conducted through DQe-c. This module uses the outputs of its preceding modules, as they are stored with specific names as comma-separated flat files in the reports directory. We will provide a brief description of DQe-c report in the next section.
+
+##DQe-c Outputs
+Each run of DQe-c generates an HTML report that summarizes outputs from its data preparation and analytics in tables and graph visualizations. The report is organized in four sections.
+
+
+###1-Load and test details
+The first section of the report presents a databased-level snapshot summary of the latest data loaded in the clinical repository. The summary includes a table that present a list of CDM tables, their availability status (in three categories: (1) available, (2) loaded but empty, (3) not loaded), Gigabyte size and number of rows for each table. These information are then presented in three visualizations (Figures 2, 3, and 4). Data for this section of the report was generated by the data preparation module.
+
+
+This DQec report is generated from testing completeness in `r CDM` data from `r org` on `r Sys.Date()`. 
+
+#### Table 1. List and Status of Common Data Model (CDM) -- here, `r CDM` -- Tables in this load
+The table bolow provides a list of CDM tables provided (and not provided) in the data load.
+
+The source data this table and the following graphics in this section are being generated from is `r "load_details_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv"`
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+dato <- read.csv("example/reports/load_details_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv")
+dato$TotalSizeKB <- ifelse(is.null(dato$TotalSizeKB) | is.na(dato$TotalSizeKB), 0, dato$TotalSizeKB)
+dato$TotalSizeGB <- round(as.numeric(dato$TotalSizeKB)/1000000,4)
+dato$Rows <- ifelse(is.null(dato$Rows) | is.na(dato$Rows), 0, dato$Rows)
+dato$status <- ifelse((dato$loaded == "Yes" & dato$available == "No"), "Table loaded but empty", "Table available")
+dato$status <- ifelse((dato$loaded == "No"), "Table not loaded!", dato$status)
+datatable(select(dato, CDM_Tables, status, TotalSizeGB, Rows), options = list(pageLength = 5), filter = 'bottom')
+
+```
+
+
+#### Figure 2. Available Tables, Compared to all CDM (`r CDM`) Tables
+This figure shows which of the CDM tables was received (and not received). 
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+treemap(dato,
+        index=c("CDM_Tables"),
+        vSize="index",
+        vColor="status",
+        type="categorical",
+        title = "",
+        title.legend = "Table Availability",
+        border.col = "white",
+        position.legend = "bottom"
+        )
+
+```
+
+#### Figure 3. File Size and Row Numbers by Table in the (`r CDM`) Load
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+treemap(dato,
+        index=c("CDM_Tables"),
+        vSize="Rows",
+        vColor="TotalSizeGB",
+        type="value",
+        title = "",
+        title.legend = "Size represents number of rows and color represent file size (in GB) for each table.",
+        border.col = "white",
+        position.legend = "bottom"
+)
+```
+
+
+#### Figure 4. Loaded tables against CDM (`r CDM`) Relational Model.
+The figure below shows a network visualization of the CDM data model, as well as highlighting the tables that are available in this load (legend is the same as in Figure 2).
+```{r, echo=FALSE, fig.align='center', fig.width= 10}
+dat.net <- dato
+  nodes <- data.frame(id = dat.net$X, 
+                    label = dat.net$CDM_Tables, 
+                    # shape = "circle",
+                    # title = "dddd",
+                    group = c(dat.net$status),
+                    # size = ifelse(dat.net$Rows == 0, 1,log(dat.net$Rows)),
+                    # color = c("#EE9572","#00C5CD"),
+                    shadow = c(FALSE))
+edges <- data.frame(from = c(4,4,4,4,4,4,4,4,4,4,4,4,4,#demographics's
+                             7,7,7,7,7,7,7,#encounter's
+                             12 #prescribing's
+                             ), 
+                    to = c(2,3,1,5,6,7,8,15,10,11,12,13,14,#to demographic
+                           15,1,13,5,14,10,12,# to encounter through encounterid, enc_type, and providerid
+                           6 # to prescribing through prescribingid
+                           ))
+
+visNetwork(nodes, edges) %>%
+  visGroups(groupname = "Table loaded but empty", color = "#AB82FF" , shape = "circle") %>% 
+  visGroups(groupname = "Table available", color = "#EE9572" , shape = "circle") %>%
+  visGroups(groupname = "Table not loaded!", color = "#00C5CD", shape = "circle") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = T) %>% 
+  visEdges(arrows = 'from', scaling = list(min = .5, max = 1)) %>%
+  visInteraction(navigationButtons = T, dragView = FALSE, zoomView = FALSE)
+
+
+
+```
+
+### 2- Completeness Results
+Second section of the report illustrates the results of data preparation and missingness modules. This section profiles changes over time in primary keys across loads (Figure 5). This visualization can help to obtain a better understanding of changes in a given clinical data repository over loads.
+
+#### Table 2. The Master Completeness Results Table
+The table below provides results of completeness test at the value/cell level.
+
+* `TabNam` = `r CDM`  table name
+* `ColNam` = Column name
+* `DQLVL` = Level of importance for completeness test. (`X`: Extremely Important, `H`: Highly Important, `L`:Low Importance)
+* `FRQ` = Frequency of rows
+* `UNIQFRQ` = Frequency of unique values in each column
+* `MS1_FRQ` = Frequency of cells with NULL/NA values or empty strings in each column
+* `MS2_FRQ` = Frequency of cells with characters in each column that don't represent meaningful data -- including, '+', '-', '_','#', '$', '*', '\', '?', '.', '&', '^', '%', '!',  '@', and 'NI'.
+* `MSs_PERC` = Percentage of overall missing data in each column 
+
+Data for this table is generated from `r "DQ_Master_Table_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv"` saved under report directory.
+```{r, echo=FALSE}
+DQTBL <- read.csv("example/reports/mstabs/DQ_Master_Table_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv")
+datatable(DQTBL[,c("TabNam","ColNam","DQLVL","test_date","FRQ","UNIQFRQ","MS1_FRQ","MS2_FRQ","MSs_PERC" )], options = list(pageLength = 5), filter = 'bottom')
+```
+
+
+### Figure 5. Changes in Primary Keys Across Loads
+Figure below profiles changes in primary keys across loads as a measure of change in patient/record number over time.
+
+Data for the figure is stored in `r "reports/FRQ_comp_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv"`
+```{r, echo=FALSE, warning=FALSE,  message=FALSE, fig.align='center', fig.height= 10,  fig.width= 10}
+comp <- read.csv("example/reports/FRQ_comp_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv")
+  
+ggplot(comp, aes(x=reorder(test_date,test_date), y=UNIQFRQ, group = ColNam) ) + 
+  geom_line(aes(), alpha = 0.4,  size = 1, show.legend = FALSE) + 
+  stat_smooth(colour = "red",level=0.99) +
+  geom_point( alpha = 0.5, shape = 1, size = 6, colour = "#FF3333", stroke = 2, show.legend = FALSE) + 
+  geom_point( aes(col = test_date), shape = 20, size = 8,   show.legend = T) + 
+  theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", hjust=0)) +
+  xlab("Load") + ylab("Unique Counts") + 
+  facet_wrap(~TabNam, ncol = 3, switch = "x", scales = "free") +
+  theme(axis.text.x=element_text(colour="white", size = 0.1))
+```
+
+### Figure 6. Proportion of Missing Data by Type in Loaded Tables
+Figures below show proportion of missing cells/values in each column of each table loaded. Figures are generated based on Table 2. 
+
+* `MS1_FRQ` = Frequency of cells with NULL/NA values and empty strings in each column
+* `MS2_FRQ` = Frequency of cells with characters in each column that don't represent meaningful data
+
+```{r, echo=FALSE, ggplot, warning=FALSE,  message=FALSE, fig.align='center', fig.height= 5, fig.width= 12}
+
+DQTBL$MS1_PERC <- ifelse(DQTBL$FRQ == 0, 0, round((DQTBL$MS1_FRQ)/DQTBL$FRQ,2))
+DQTBL$MS2_PERC <- ifelse(DQTBL$FRQ == 0, 0, round((DQTBL$MS2_FRQ)/DQTBL$FRQ,2))
+DF <- subset(melt(DQTBL, id.var=c("TabNam","ColNam")), variable %in% c("MS1_PERC","MS2_PERC"))
+DF$value <- as.numeric(DF$value)
+colnames(DF)[3] <- "DQ_Issue"
+colnames(DF)[4] <- "Ratio"
+
+#####plotting
+plot_list<- list()
+table_list <- unique(DQTBL$TabNam)
+
+# create for loop to produce ggplot2 graphs 
+for (i in 3:4) {#seq_along(table_list)) { 
+  
+  # create plot for each OMOP table in DQTBL 
+  plot_list[[i]] <- 
+    plot_list[[i]] <- 
+    ggplot(subset(DF, TabNam==table_list[i]),
+           aes(x=ColNam, y=Ratio, fill=DQ_Issue)) + 
+    geom_bar(stat="identity", width = 1) +
+    #     scale_fill_manual(values=c("red","green","orange","dark red")) +
+    facet_wrap( ~ ColNam, scale="free_x", nrow = 1) +
+    #     ggtitle("Frequency of Missing Data") +
+    xlab("Column") +
+    ylab("Frequency") +
+    theme(plot.title = element_text(family = "Trebuchet MS", color="#666666", face="bold", hjust=0),
+          axis.text.x = element_text(vjust = 1),
+          strip.text.x = element_text(angle = 90, face="bold")) +
+    theme(axis.text.x=element_blank())+    # theme(legend.position="none") + 
+    ggtitle(paste('Ratio of Missing Data in "', table_list[i], '" table', sep=''))
+  
+}
+
+# flag.plot <- do.call(grid.arrange, c(plot_list, ncol=1))
+plot_list
+
+```
+
+##Data Model Tests
+
+### Figure 7. Common Key Variables
+Figures below visualize number of unique key variables that are common in multiple `r CDM` tables. 
+
+* The Reference column on the right comes from the table in which the variable is a primary key, and therefore is a reference for all other tables. 
+
+* Count_Out shows number of unique key variables that are not present in the reference table -- e.g., person id from observation table that does not exist in person table.
+
+* Count_In represent number of unique key variables that are present in the reference table -- e.g., person id from observation table that exist in person table as well.
+
+```{r, echo=FALSE,  fig.align='center', fig.height= 3, fig.width= 10}
+DQTBL_KEYS <- read.csv("example/reports/DM_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv")
+
+  patid<- filter(DQTBL_KEYS, ColNam == "patid")
+plot2 <- ggplot(data=patid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
+  geom_bar(stat="identity", width = 1, aes(fill=Index)) +
+  scale_fill_manual(values=c("darkolivegreen3","firebrick1", "springgreen3")) +
+  ggtitle(paste("Count of Unique ",unique(patid$ColNam)," in Tables with ",unique(patid$ColNam),
+                sep="")) +
+  xlab(" Table Name") +
+  ylab("Frequency of Unique Values")
+(gg <- ggplotly(plot2))
+
+```
+
+
+##Test of Completeness in Key Clinical Indicators
+
+### Figure 8. Common Key Variables
+Figure 5 shows the parcentage of patients missing specific key clinical indicators. 
+
+```{r, echo=FALSE, fig.align='center', fig.height= 5, fig.width= 10}
+withouts <- read.csv("example/reports/withouts_PCORnet_v3_DQe-cDemoPCORnet_14-01-2017.csv")
+  
+ggplot(withouts, aes(x=missing.percentage,y=reorder(group,-missing.percentage), label = perc)) + 
+    geom_point(aes(fill = missing.percentage),shape = 21, colour = "black",  size = 8, stroke = 3, alpha = 0.9) +
+    # geom_point(aes(fill = missing),shape = 21, colour = "black", fill= "white", size = 5, stroke = 5) +
+    # geom_label(aes(fill = missing), colour = "white", fontface = "bold", vjust = 0, nudge_y = -0.1, size = 5)+
+#     geom_label(vjust = 0, nudge_y = 0.2, size = 4)+
+    geom_text(vjust = -0.5, hjust = -.38, nudge_y = 0, size = 4)+
+    
+    scale_fill_gradient(limits=c(0, 100),low="#FFFAF0", high="#EE2C2C", guide=F,na.value="white")+
+    # theme_grey(base_size = base_size) + 
+    labs(x = "", y = "") +
+    scale_x_continuous(limits = c(0, 100)) + 
+    theme_minimal() +
+    theme(panel.grid.major.y = element_line(color = "gray",size = 2.5),
+          panel.grid.major.x = element_line(colour = "black", linetype = "dotted"),
+          axis.text.y=element_text(size=20, face="bold")) 
+```
+
+
+##info
+This is report is from DQe-c version 3.1
+
+For questions and/or inquiries email: `hestiri@mgh.harvard.edu`
+
