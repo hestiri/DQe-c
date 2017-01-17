@@ -1,0 +1,12 @@
+,group,missing.percentage,missing.population,denominator,perc,organization,test_date,CDM
+1,encounter,34,34,100,34.00%,DQe-cDemoonPCORnet,13/1/2017,PCORNET3
+2,diagnosis,3,3,100,3.00%,DQe-cDemoonPCORnet,13/1/2018,PCORNET3
+3,medication,12,12,100,12.00%,DQe-cDemoonPCORnet,13/1/2019,PCORNET3
+4,ethnicity,0,0,100,0.00%,DQe-cDemoonPCORnet,13/1/2020,PCORNET3
+5,race,4.5,4.5,100,4.50%,DQe-cDemoonPCORnet,13/1/2021,PCORNET3
+6,gender,0,0,100,0.00%,DQe-cDemoonPCORnet,13/1/2022,PCORNET3
+7,weight,0,0,100,2.00%,DQe-cDemoonPCORnet,13/1/2023,PCORNET3
+8,height,83,83,100,83.00%,DQe-cDemoonPCORnet,13/1/2024,PCORNET3
+9,blood_pressure,71.3,71.3,100,71.30%,DQe-cDemoonPCORnet,13/1/2025,PCORNET3
+10,blood_pressure,6,6,100,19.00%,DQe-cDemoonPCORnet,13/1/2026,PCORNET3
+11,smoking,99.9,99.9,100,99.90%,DQe-cDemoonPCORnet,13/1/2027,PCORNET3

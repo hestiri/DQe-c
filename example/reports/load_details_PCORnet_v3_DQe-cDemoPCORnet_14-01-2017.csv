@@ -1,0 +1,16 @@
+,CDM_Tables,Repo_Tables,Rows,TotalSizeKB,loaded,available,index
+1,condition,condition,527835,49051,Yes,Yes,1
+2,death,death,12051,8724,Yes,Yes,1
+3,death_condition,death_condition,0,0,Yes,No,1
+4,demographic,demographic,123473,16419,Yes,Yes,1
+5,diagnosis,diagnosis,38182630,4557116,Yes,Yes,1
+6,dispensing,dispensing,11966456,993453,Yes,Yes,1
+7,encounter,encounter,3918518,527192,Yes,Yes,1
+8,enrollment,enrollment,123472,14752,Yes,Yes,1
+9,harvest,harvest,0,0,Yes,No,1
+10,lab_result_cm,lab_result_cm,702658,55395,Yes,Yes,1
+11,pcornet_trial,pcornet_trial,746,8408,Yes,Yes,1
+12,prescribing,prescribing,25876657,1906405,Yes,Yes,1
+13,pro_cm,pro_cm,4364073,395534,Yes,Yes,1
+14,procedures,procedures,22400153,1709059,Yes,Yes,1
+15,vital,vital,0,0,No,No,1
