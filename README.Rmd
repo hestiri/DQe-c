@@ -66,7 +66,9 @@ Second section of the report illustrates the results of data preparation and mis
 Table 1. Columns and Content of the Reference Table.
 
 * category 1 of missingness measures presence of absence
+
 ** category 2 of missingness measures presence of nonsense
+
 As we described briefly in the introduction, our approach to missingness/completeness encompasses a broad connotation. We measure completeness as presence of “sensical” data, regardless of whether a data point is plausible or not. That is, if for any reasons a data point does not include a value or an attribute that is compatible for analysis – i.e., the analyst needs to treat the data point with missing data procedures –  we will consider it as missing data. Accordingly, DQe-c differentiates two types of missingness: (1) presence of absence (MS1), and (2) presence of nonsense (MS2). We describe the two types in next sections. Category 1 of missingness (MS1) is the conventional definition for missingness, counting frequency of NULL/NA values or empty strings in each column. Category 2 of missingness (MS2) can be defined by the user. We currently consider data points with characters including '+', '-', '_','#', '$', '*', '\', '?', '.', '&', '^', '%', '!', '@', and 'NI' in MS2 category. This list can be easily modified in the missingness module.
 
 
