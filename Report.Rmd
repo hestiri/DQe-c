@@ -134,7 +134,7 @@ The table below provides results of completeness test at the value/cell level.
 * `FRQ` = Frequency of rows
 * `UNIQFRQ` = Frequency of unique values in each column
 * `MS1_FRQ` = Frequency of cells with NULL/NA values or empty strings in each column
-* `MS2_FRQ` = Frequency of cells with characters in each column that don't represent meaningful data -- including, '+', '-', '_','#', '$', '*', '\', '?', '.', '&', '^', '%', '!',  '@', and 'NI'.
+* `MS2_FRQ` = Frequency of cells with characters in each column that don't represent meaningful data -- including, '+', '-', '_','#', '$', '*', '\', '?', '.', '&', '^', '%', '!', '@', and 'NI'.
 * `MSs_PERC` = Percentage of overall missing data in each column 
 
 Data for this table is generated from `r paste("DQ_Master_Table_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep="")` saved under report directory.
