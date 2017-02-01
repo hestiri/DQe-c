@@ -35,7 +35,7 @@ if (CDM == "PCORNET3") {
   
   # medication
   #define the uwanted values in addition to NULLs...
-  medication <- c("","%","$","#","@","NI")
+  medication <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_medication <- 
     without(table = "PRESCRIBING", col = "prescribingid", ref_date2 = "2014-01-01" ,list = medication)
@@ -44,7 +44,7 @@ if (CDM == "PCORNET3") {
   
   #Dx -------------
   #define the uwanted values in addition to NULLs...
-  diagnosis <- c("","%","$","#","@","NI")
+  diagnosis <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_diagnosis <- 
     without(table = "DIAGNOSIS", col = "dx", ref_date2 = "2014-01-01" ,list = diagnosis)
@@ -52,7 +52,7 @@ if (CDM == "PCORNET3") {
   
   #Encounter -------------
   #define the uwanted values in addition to NULLs...
-  encounter <- c("","%","$","#","@","NI")
+  encounter <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_encounter <- 
     without(table = "ENCOUNTER", col = "enc_type", ref_date2 = "2014-01-01" ,list = encounter)
@@ -60,7 +60,7 @@ if (CDM == "PCORNET3") {
   
   #Weight -------------
   #define the uwanted values in addition to NULLs...
-  weight <- c("","%","$","#","@","NI")
+  weight <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_weight <- 
     without(table = "VITAL", col = "wt", ref_date2 = "2014-01-01" ,list = weight)
@@ -69,7 +69,7 @@ if (CDM == "PCORNET3") {
   
   #Height -------------
   #define the uwanted values in addition to NULLs...
-  height <- c("","%","$","#","@","NI","NI")
+  height <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_height <- 
     without(table = "VITAL", col = "ht", ref_date2 = "2014-01-01" ,list = height)
@@ -77,7 +77,7 @@ if (CDM == "PCORNET3") {
   
   #blood_pressure -------------
   #define the uwanted values in addition to NULLs...
-  blood_pressure <- c("","%","$","#","@","NI")
+  blood_pressure <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_BP_sys <- 
     without(table = "VITAL", col = "systolic", ref_date2 = "2014-01-01" ,list = blood_pressure)
@@ -90,7 +90,7 @@ if (CDM == "PCORNET3") {
   
   #smoking -------------
   #define the uwanted values in addition to NULLs...
-  smoking <- c("","%","$","#","@","NI")
+  smoking <- c('+', '-', '_','', '$', "",'*', '?', '.', '&', '^', '%', '!', '@','NI')
   # 
   without_smoking <- 
     without(table = "VITAL", col = "smoking", ref_date2 = "2014-01-01" ,list = smoking)
