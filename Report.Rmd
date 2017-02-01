@@ -83,9 +83,9 @@ edges <- data.frame(from = c(4,4,4,4,4,4,4,4,4,4,4,4,4,#demographics's
                            ))
 
 visNetwork(nodes, edges) %>%
-  visGroups(groupname = "Table loaded but empty", color = "#EE9572", shape = "circle") %>%
-  visGroups(groupname = "Table available", color = "#00C5CD", shape = "circle") %>%
-  visGroups(groupname = "Table not loaded!", color = "gray", shape = "circle") %>%
+  visGroups(groupname = "Table loaded but empty", color = "#AB82FF", shape = "circle") %>%
+  visGroups(groupname = "Table available", color = "#EE9572", shape = "circle") %>%
+  visGroups(groupname = "Table not loaded!", color = "#00C5CD", shape = "circle") %>%
   visOptions(highlightNearest = TRUE, nodesIdSelection = T) %>% 
   visEdges(arrows = 'from', scaling = list(min = .5, max = 1)) %>%
   visInteraction(navigationButtons = T, dragView = FALSE, zoomView = FALSE)
