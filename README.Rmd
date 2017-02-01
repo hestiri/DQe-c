@@ -115,7 +115,7 @@ Figure 5 shows the parcentage of patients missing specific key clinical indicato
 
 
 ##info
-This is an example report from DQe-c version on 3.1 PCORnet v3 CDM
+This is an example report from DQe-c version 3.1 on PCORnet v3 CDM
 
 For questions and/or inquiries email: `hestiri@mgh.harvard.edu`
 
