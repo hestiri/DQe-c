@@ -26,8 +26,7 @@ dato <- read.csv(paste("reports/load_details_",CDM,"_",org,"_",as.character(form
 dato$TotalSizeKB <- ifelse(is.null(dato$TotalSizeKB) | is.na(dato$TotalSizeKB), 0, dato$TotalSizeKB)
 dato$TotalSizeGB <- round(as.numeric(dato$TotalSizeKB)/1000000,4)
 dato$Rows <- ifelse(is.null(dato$Rows) | is.na(dato$Rows), 0, dato$Rows)
-dato$status <- ifelse((dato$loaded == "Yes" & dato$available == "No"), "Table loaded but empty", "Table available")
-dato$status <- ifelse((dato$loaded == "No"), "Table not loaded!", dato$status)
+dato$status <- ifelse((dato$loaded == "Yes" & dato$available == "No"), "Table not available", "Table available")
 datatable(select(dato, CDM_Tables, status, TotalSizeGB, Rows), options = list(pageLength = 5), filter = 'bottom')
 
 ```
@@ -83,9 +82,8 @@ edges <- data.frame(from = c(4,4,4,4,4,4,4,4,4,4,4,4,4,#demographics's
                            ))
 
 visNetwork(nodes, edges) %>%
-  visGroups(groupname = "Table loaded but empty", color = "#AB82FF", shape = "circle") %>%
+  visGroups(groupname = "Table not available", color = "#00C5CD", shape = "circle") %>%
   visGroups(groupname = "Table available", color = "#EE9572", shape = "circle") %>%
-  visGroups(groupname = "Table not loaded!", color = "#00C5CD", shape = "circle") %>%
   visOptions(highlightNearest = TRUE, nodesIdSelection = T) %>% 
   visEdges(arrows = 'from', scaling = list(min = .5, max = 1)) %>%
   visInteraction(navigationButtons = T, dragView = FALSE, zoomView = FALSE)
