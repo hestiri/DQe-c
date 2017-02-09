@@ -2,10 +2,10 @@
 ##install/load required packages
 source("libs.R")
 
-###identify data model PCORnet V3, OMOP ßV5
-CDM = "PCORNET3" #OMOPV5
+###identify data model PCORnet V3
+CDM = "PCORNET3" 
 
-###identify SQL connection PostgreSQL or SQL Server
+###identify SQL connection Oracle or SQL Server
 SQL = "SQLServer" ##
 
 ## if you have your tables in a particular SQL schema, identify the schema here:
