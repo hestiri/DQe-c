@@ -12,11 +12,12 @@ DQTBL$test_date <- as.character(format(Sys.Date(),"%m-%d-%Y"))
 DQTBL$CDM <- CDM # Data Model
 
 
-if (SQL == "SQLServer") {
 ##store a table with list of all tables and columns in the repository
-repotabs <- dbGetQuery(conn,
-                      "SELECT COLUMN_NAME, TABLE_NAME 
-FROM INFORMATION_SCHEMA.COLUMNS")
+
+if (SQL == "SQLServer") {repotabs <- dbGetQuery(conn,"SELECT COLUMN_NAME, TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS") 
+} else if (SQL == "Oracle") {repotabs <- dbGetQuery(conn,"SELECT COLUMN_NAME, TABLE_NAME FROM user_tab_cols")}
+
+
 
 #############################################################################
 ##loop 1: go through all columns in all tables and count number of rows 
@@ -43,7 +44,7 @@ for (j in 1: length(unique(DQTBL$TabNam)))
     ##now going through the columns of table j
   {
     col <- REPOTB$COLUMN_NAME[i]
-    FRQ <- as.numeric(dbGetQuery(conn, paste0("SELECT COUNT(*) FROM ",schema,".",NAM_Repo)))
+    FRQ <- as.numeric(dbGetQuery(conn, paste0("SELECT COUNT(*) FROM ",schema,NAM_Repo)))
     ##calculated length (number of total rows) of each column from each table
     DQTBL$FRQ <- ifelse(DQTBL$ColNam == tolower(col) & DQTBL$TabNam == NAM, FRQ, DQTBL$FRQ )
     ##stored frequency in the culumn FRQ
@@ -78,14 +79,14 @@ for (j in 1: length(unique(DQTBL$TabNam)))
     ##now going through the columns of table j
   {
     col <- REPOTB$COLUMN_NAME[i]
-    UNIQ <- as.numeric(dbGetQuery(conn, paste0("SELECT COUNT(DISTINCT ", col,") FROM ",schema,".",NAM_Repo)))
+    UNIQ <- as.numeric(dbGetQuery(conn, paste0("SELECT COUNT(DISTINCT ", col,") FROM ",schema,NAM_Repo)))
     ##calculated length (number of total rows) of each column from each table
     DQTBL$UNIQFRQ <- ifelse(DQTBL$ColNam == tolower(col) & DQTBL$TabNam == NAM, UNIQ, DQTBL$UNIQFRQ )
     ##stored frequency in the culumn FRQ
   }
 }
 
-}
+
 
 
 
