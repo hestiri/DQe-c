@@ -6,17 +6,17 @@ source("libs.R")
 CDM = "PCORNET3" 
 
 ###identify SQL connection Oracle or SQL Server
-SQL = "SQLServer" ##
+SQL = "SQLServer" ## SET to "Oracle" is Oracle is your RDBMS
 
 ## if you have your tables in a particular SQL schema, identify the schema here:
-schema = "SET SCHEMA NAME, IF THERE IS ONE" ## default is that there is no schema
+schema = "" ## default is that there is no schema. SET SCHEMA NAME, IF THERE IS ONE
 
 ## is there a prefix for table names in your database?
-prefix = "SET PREFIX, IF THERE IS ONE" ## default at none
+prefix = "" ## default at none. SET PREFIX, IF THERE IS ONE
 
 
 ## enter the organization name you are running the test on
-org = "SET Organization Name"
+org = "" # SET Your Organization Name
 
 
 
