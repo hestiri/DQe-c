@@ -58,7 +58,7 @@ if (SQL == "SQLServer") {
     
     #patients who don't have any records whatsoever
     whatsoever <- dbGetQuery(conn,
-                             paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL AND CAST(",toupper(col), " AS CHAR(54)) NOT IN  ('",paste(list,collapse = "','"),"'))")
+                             paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR CAST(",toupper(col), " AS CHAR(54)) NOT IN  ('",paste(list,collapse = "','"),"'))")
     )
     #calculate the percentage
     pwse <- round((whatsoever/denominator)*100,4)
@@ -124,7 +124,7 @@ if (SQL == "SQLServer") {
       
       #patients who don't have any records whatsoever
       whatsoever <- dbGetQuery(conn,
-                               paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL AND TO_CHAR(",toupper(col),") NOT IN  ('",paste(list,collapse = "','"),"'))")
+                               paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR TO_CHAR(",toupper(col),") NOT IN  ('",paste(list,collapse = "','"),"'))")
       )
       #calculate the percentage
       pwse <- round((whatsoever/denominator)*100,4)
