@@ -37,14 +37,14 @@ if (SQL == "SQLServer") {
     list.name <- deparse(substitute(list))
     ##set the denominator
     denominator <- dbGetQuery(conn,
-                              paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",
-                                     ref_date2,"'"))
+                              paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",ref_date2,"'")
+    )
     
-    orphanids <- dbGetQuery(conn,
-                            paste0(
-                              "SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",ref_date2,"')"
-                            ))
-    if (orphanids > 0) message(orphanids, " unique patient ids not available in the source table.",appendLF=T)
+    # orphanids <- dbGetQuery(conn,
+    #                         paste0(
+    #                           "SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",ref_date2,"')"
+    #                         ))
+    # if (orphanids > 0) message(orphanids, " unique patient ids not available in the source table.",appendLF=T)
     
     
     #patients with at least one value out of what we want
@@ -57,8 +57,9 @@ if (SQL == "SQLServer") {
     
     
     #patients who don't have any records whatsoever
+    
     whatsoever <- dbGetQuery(conn,
-                             paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR CAST(",toupper(col), " AS CHAR(54)) NOT IN  ('",paste(list,collapse = "','"),"'))")
+                             paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",ref_date2,"'"," AND PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR CAST(",toupper(col), " AS CHAR(54)) NOT IN  ('",paste(list,collapse = "','"),"'))")
     )
     #calculate the percentage
     pwse <- round((whatsoever/denominator)*100,4)
@@ -107,11 +108,11 @@ if (SQL == "SQLServer") {
       denominator <- dbGetQuery(conn,
                                 paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > TO_DATE('",ref_date1,"', 'yyyy-mm-dd') AND BIRTH_DATE  < TO_DATE('",ref_date2,"', 'yyyy-mm-dd')"))
       
-      orphanids <- dbGetQuery(conn,
-                              paste0(
-                                "SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > TO_DATE('",ref_date1,"', 'yyyy-mm-dd') AND BIRTH_DATE  < TO_DATE('",ref_date2,"', 'yyyy-mm-dd'))"))
-      if (orphanids > 0) message(orphanids, " unique patient ids not available in the source table.",appendLF=T)
-      
+      # orphanids <- dbGetQuery(conn,
+      #                         paste0(
+      #                           "SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > TO_DATE('",ref_date1,"', 'yyyy-mm-dd') OR BIRTH_DATE  < TO_DATE('",ref_date2,"', 'yyyy-mm-dd'))"))
+      # if (orphanids > 0) message(orphanids, " unique patient ids not available in the source table.",appendLF=T)
+      # 
       
       #patients with at least one value out of what we want
       pats_wit_oneout <- dbGetQuery(conn,
@@ -123,9 +124,11 @@ if (SQL == "SQLServer") {
       
       
       #patients who don't have any records whatsoever
+      
       whatsoever <- dbGetQuery(conn,
-                               paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR TO_CHAR(",toupper(col),") NOT IN  ('",paste(list,collapse = "','"),"'))")
+                               paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > TO_DATE('",ref_date1,"', 'yyyy-mm-dd') AND BIRTH_DATE  < TO_DATE('",ref_date2,"', 'yyyy-mm-dd') AND PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR TO_CHAR(",toupper(col),") NOT IN  ('",paste(list,collapse = "','"),"'))")
       )
+      
       #calculate the percentage
       pwse <- round((whatsoever/denominator)*100,4)
       if (pwse > 1) message(whatsoever, " of the patients -- ",pwse,"% of patients -- are missing any acceptable ",toupper(col)," value in the ",toupper(table)," table.",appendLF=T)
