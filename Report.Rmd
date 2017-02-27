@@ -396,5 +396,5 @@ ggplot(withouts, aes(x=missing.percentage,y=reorder(group,-missing.percentage), 
 ##info
 This is report is from DQe-c version 3.2
 
-For questions and/or inquiries email: `hestiri@mgh.harvard.edu`
+Ask questions pr report issues: `hestiri@mgh.harvard.edu`
 
