@@ -57,12 +57,12 @@ if (SQL == "SQLServer") {
     
     
     #patients who don't have any records whatsoever
-    
+    # we calculate valid patients first
     whatsoever <- dbGetQuery(conn,
-                             paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",ref_date2,"'"," AND PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR CAST(",toupper(col), " AS CHAR(54)) NOT IN  ('",paste(list,collapse = "','"),"'))")
+                             paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > '",ref_date1,"' AND BIRTH_DATE  < '",ref_date2,"'"," AND PATID IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL AND CAST(",toupper(col), " AS CHAR(54)) NOT IN  ('",paste(list,collapse = "','"),"'))")
     )
-    #calculate the percentage
-    pwse <- round((whatsoever/denominator)*100,4)
+    #the we calculate the percentage of invalid 
+    pwse <- round(((denominator-whatsoever)/denominator)*100,4)
     if (pwse > 1) message(whatsoever, " of the patients -- ",pwse,"% of patients -- are missing any acceptable ",toupper(col)," value in the ",toupper(table)," table.",appendLF=T)
     
     
@@ -124,13 +124,13 @@ if (SQL == "SQLServer") {
       
       
       #patients who don't have any records whatsoever
-      
+      # we calculate valid patients first
       whatsoever <- dbGetQuery(conn,
-                               paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > TO_DATE('",ref_date1,"', 'yyyy-mm-dd') AND BIRTH_DATE  < TO_DATE('",ref_date2,"', 'yyyy-mm-dd') AND PATID NOT IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL OR TO_CHAR(",toupper(col),") NOT IN  ('",paste(list,collapse = "','"),"'))")
+                               paste0("SELECT COUNT(DISTINCT(PATID)) FROM ",schema,prefix,"DEMOGRAPHIC WHERE BIRTH_DATE > TO_DATE('",ref_date1,"', 'yyyy-mm-dd') AND BIRTH_DATE  < TO_DATE('",ref_date2,"', 'yyyy-mm-dd') AND PATID IN (SELECT DISTINCT(PATID) FROM ",schema,subset(tbls2$Repo_Tables,tbls2$CDM_Tables == tolower(table))," WHERE ",toupper(col), " IS NOT NULL AND TO_CHAR(",toupper(col),") NOT IN  ('",paste(list,collapse = "','"),"'))")
       )
       
-      #calculate the percentage
-      pwse <- round((whatsoever/denominator)*100,4)
+      #the we calculate the percentage of invalid 
+      pwse <- round(((denominator-whatsoever)/denominator)*100,4)
       if (pwse > 1) message(whatsoever, " of the patients -- ",pwse,"% of patients -- are missing any acceptable ",toupper(col)," value in the ",toupper(table)," table.",appendLF=T)
       
       
