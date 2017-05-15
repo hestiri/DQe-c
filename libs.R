@@ -18,4 +18,5 @@ if (!require("visNetwork")) install.packages('visNetwork')
 if (!require("rmdformats")) devtools::install_github("juba/rmdformats")
 if (!require("visNetwork")) devtools::install_github("datastorm-open/visNetwork")
 if (!require("ggbeeswarm")) devtools::install_github("eclarke/ggbeeswarm")
+if (!require("tcltk")) install.packages('tcltk')
 
