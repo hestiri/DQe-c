@@ -44,6 +44,9 @@ pss = credentials[[2]]
 # who is running the test?
 tester <- "TESTER NAME" 
 
+## Delete credentials
+rm(credentials)
+
 ## reading organization name
 org <- org
 
