@@ -41,11 +41,12 @@ usrnm = credentials[[1]]
 ## password for JDBC/ODBC connection
 pss = credentials[[2]]
 
-# who is running the test?
-tester <- "TESTER NAME" 
-
 ## Delete credentials
 rm(credentials)
+
+
+# who is running the test?
+tester <- "hossein.estiri" 
 
 ## reading organization name
 org <- org
