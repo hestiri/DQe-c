@@ -1,8 +1,9 @@
 ### Install and load all libraries 
-if (!require("data.table")) install.packages('data.table')
 if (!require("devtools")) install.packages('devtools')
-if (!require("dplyr")) install.packages('dplyr')
 if (!require("plyr")) install.packages('plyr')
+if (!require("dplyr")) install.packages('dplyr')
+if (!require("data.table")) install.packages('data.table')
+if (!require("dtplyr")) install.packages('dtplyr')
 if (!require("DT")) devtools::install_github('rstudio/DT')
 if (!require("ggplot2")) devtools::install_github('hadley/ggplot2')
 if (!require("gridExtra")) install.packages('gridExtra')
