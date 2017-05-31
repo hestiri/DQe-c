@@ -9,7 +9,15 @@ output:
 
 ```{r, echo=FALSE, include=FALSE}
 require(data.table);require(dplyr);require(ggplot2);require(gridExtra);require(rmarkdown);require(knitr):require(plotly);require(DT);require(treemap); require(visNetwork)
-source("keys.R");rm(pss)
+
+## borrowing the following 6 lines of code from https://stackoverflow.com/questions/26245554/execute-a-set-of-lines-from-another-r-file
+sourcePartial <- function(fn, skip=0, n=-1) {
+    lines <- scan(fn, what=character(), sep="\n", skip=skip, n=n, quiet=TRUE)
+    tc <- textConnection(lines)
+    source(tc)
+    close(tc)
+}
+sourcePartial("keys.R",47,12)
  
 ```
 
