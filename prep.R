@@ -15,6 +15,9 @@ if (SQL == "SQLServer") {
 if (CDM == "PCORNET3") {
   DQTBL <- read.csv(file="DQTBL_pcornet_v3.csv",head=TRUE,sep=",")
   source("funcs_pcornet3.R")
+} else if (CDM == "PCORNET31") {
+  DQTBL <- read.csv(file="DQTBL_pcornet_v31.csv",head=TRUE,sep=",")
+  source("funcs_pcornet3.R")
 } 
 
 
