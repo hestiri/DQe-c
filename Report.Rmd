@@ -75,7 +75,7 @@ treemap(dato,
 The figure below shows a network visualization of the CDM data model, as well as highlighting the tables that are available in this load (legend is the same as in Figure 1).
 ```{r, echo=FALSE, fig.align='center', fig.width= 10}
 dat.net <- dato
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   nodes <- data.frame(id = dat.net$X, 
                     label = dat.net$CDM_Tables, 
                     group = c(dat.net$status),
@@ -227,7 +227,7 @@ Figures below visualize number of unique key variables that are common in multip
 ```{r, echo=FALSE,  fig.align='center', fig.height= 3, fig.width= 10}
 DQTBL_KEYS <- read.csv(paste("reports/DM_",CDM,"_",org,"_",as.character(format(Sys.Date(),"%d-%m-%Y")),".csv", sep=""))
 
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   patid<- filter(DQTBL_KEYS, ColNam == "patid")
 plot2 <- ggplot(data=patid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
   geom_bar(stat="identity", width = 1, aes(fill=Index)) +
@@ -257,7 +257,7 @@ plot2 <- ggplot(data=patid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
 ```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
 
 
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   encounterid <- filter(DQTBL_KEYS, ColNam == "encounterid")
 
 plot3 <- ggplot(data=encounterid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
@@ -287,7 +287,7 @@ plot3 <- ggplot(data=encounterid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
 
 ```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
 
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   providerid <- filter(DQTBL_KEYS, ColNam == "providerid")
 
 plot4 <- ggplot(data=providerid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
@@ -318,7 +318,7 @@ plot4 <- ggplot(data=providerid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
 
 ```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
 
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   enc_type <- filter(DQTBL_KEYS, ColNam == "enc_type")
 
 plot5 <- ggplot(data=enc_type, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
@@ -349,7 +349,7 @@ plot5 <- ggplot(data=enc_type, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
 ```
 
 ```{r, echo=FALSE, fig.align='center', fig.height= 3, fig.width= 10}
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   prescribingid <- filter(DQTBL_KEYS, ColNam == "prescribingid")
 
 plot6 <- ggplot(data=prescribingid, aes(x=reorder(TabNam, UNIQFRQ), y=UNIQFRQ)) +
