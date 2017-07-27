@@ -182,7 +182,7 @@ for (n in 1:N) {
 }
 
 #binding the tables together to create a masters table
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   FRQ_comp <- subset(rbindlist(compr), (ColNam == "patid" & TabNam == "demographic") |
                        (ColNam == "dispensingid" & TabNam == "dispensing") |
                        (ColNam == "vitalid" & TabNam == "vital") |
