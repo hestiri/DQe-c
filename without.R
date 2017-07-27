@@ -8,7 +8,7 @@ source("dmrun.R")
 
 
 
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   
   ##gender
   
