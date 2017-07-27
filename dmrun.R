@@ -10,7 +10,7 @@ source("freq.R")
 
 
 ## create data frame to store only columns and tables that have related key and/or primary keys for data model test 
-if (CDM == "PCORNET3") {
+if (CDM %in% c("PCORNET3","PCORNET31")) {
   DQTBL_KEYS <- select(subset(DQTBL, ColNam %in% c("patid","encounterid","providerid","prescribingid","enc_type")),TabNam, ColNam, UNIQFRQ)
   ## creating an index for plotting: Count In means number rof unique frequencies that exist in the reference table
   DQTBL_KEYS$Index <- "Count_In"
