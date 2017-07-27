@@ -3,7 +3,7 @@
 source("libs.R")
 
 ###identify data model PCORnet V3
-CDM = "PCORNET3" 
+CDM = "PCORNET3" #set to PCORNET31, if you have the latest CDM
 
 ###identify SQL connection Oracle or SQL Server
 SQL = "SQLServer" ## SET to "Oracle" is Oracle is your RDBMS
@@ -32,5 +32,4 @@ rmarkdown::render("Report.Rmd")
 
 
 
-dbDisconnect(con)
-rm(list = ls())
+source("DQe-v_queries.R")
